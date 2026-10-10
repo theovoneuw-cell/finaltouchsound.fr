@@ -1,0 +1,13 @@
+/* Pages légales : lecture simple, même papier et mêmes polices que le site */
+.legal { max-width: 760px; padding-top: clamp(40px, 6vw, 72px); padding-bottom: 80px; }
+.legal h1 { font-size: clamp(30px, 4vw, 44px); font-weight: 600; letter-spacing: -0.025em; line-height: 1.15; margin: 0; }
+.legal .maj { color: var(--muted); font-size: 14px; margin: 12px 0 40px; }
+.legal h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.015em; margin: 40px 0 10px; padding-top: 22px; border-top: 1px solid var(--line); }
+.legal p, .legal li, .legal dd { color: var(--ink-2); }
+.legal a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: 3px; }
+.legal ul { padding-left: 20px; }
+.legal .donnees { margin: 0; }
+.legal .donnees div { padding: 14px 0; border-top: 1px solid var(--line); }
+.legal .donnees dt { font-weight: 600; margin-bottom: 4px; }
+.legal .donnees dd { margin: 0; }
+.legal #en { margin-top: 64px; }

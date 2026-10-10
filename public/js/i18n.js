@@ -1,6 +1,9 @@
 // Textes du site, francais et anglais. Les cles commencant par lt. sont rendues avec le lettrage.
 export const T = {
   fr: {
+    'price.terms': 'En achetant, tu acceptes les conditions de vente.',
+    'foot.legal': 'Mentions légales et CGV',
+    'foot.privacy': 'Confidentialité',
     'price.left': "Lancement : plus que {n} licences sur 100",
     'final.p.full': "L’essai sur ton morceau est gratuit et sans inscription. Si le résultat te plaît, Final Touch est à 29,95 €.",
     'lt.price.full': "Un prix, une fois.",
@@ -205,6 +208,9 @@ export const T = {
   },
 
   en: {
+    'price.terms': 'By buying, you accept the terms of sale.',
+    'foot.legal': 'Legal notice and terms',
+    'foot.privacy': 'Privacy',
     'price.left': "Launch: {n} of 100 licenses left",
     'final.p.full': "Trying it on your track is free, no sign-up. If you like the result, Final Touch is €29.95.",
     'lt.price.full': "One price, paid once.",

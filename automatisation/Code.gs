@@ -226,7 +226,24 @@ function accepterEtudiant(email) {
   const lien = prop('LIEN_ACHAT') + (prop('LIEN_ACHAT').includes('?') ? '&' : '?') + 'checkout[discount_code]=' + code;
   const m = MAILS[langue === 'en' ? 'en' : 'fr'].etudiant;
   envoyer(email, m.sujet, m.texte(code, lien));
-  if (i > 0) { f.getRange(i + 1, 3).setValue('accepté'); f.getRange(i + 1, 4).setValue(code); }
+  if (i > 0) {
+    // La carte n a plus d utilite une fois la demande acceptee : on la met a la corbeille.
+    const carte = String(v[i][3] || '');
+    const m = carte.match(/[-\w]{25,}/);
+    if (m) { try { DriveApp.getFileById(m[0]).setTrashed(true); } catch (err) { noter('Carte ' + email, err); } }
+    f.getRange(i + 1, 3).setValue('accepté'); f.getRange(i + 1, 4).setValue(code);
+  }
+}
+
+// À lancer à la main pour refuser une demande : la carte est supprimée, rien n'est envoyé.
+function refuserEtudiant(email) {
+  const f = feuille('Etudiants');
+  const v = f.getDataRange().getValues();
+  const i = v.findIndex(r => r[1] === email);
+  if (i < 1) return;
+  const m = String(v[i][3] || '').match(/[-\w]{25,}/);
+  if (m) { try { DriveApp.getFileById(m[0]).setTrashed(true); } catch (err) { noter('Carte ' + email, err); } }
+  f.getRange(i + 1, 3).setValue('refusé'); f.getRange(i + 1, 4).setValue('');
 }
 
 // Code de classe : à lancer à la main, à distribuer à tes élèves (ex. 30 utilisations).
