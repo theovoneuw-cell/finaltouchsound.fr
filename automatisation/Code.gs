@@ -22,7 +22,7 @@ const CFG = {
   SITE: 'https://finaltouchsound.fr',
   LANCEMENT_CODE: 'LANCEMENT',
   LANCEMENT_MAX: 100,
-  LANCEMENT_REMISE_PCT: 50,
+  LANCEMENT_REMISE_CENTIMES: 1500,       // 29,95 € - 15 € = 14,95 €
   ALERTE_RESTANT: 20,                     // « il reste 20 licences » aux inscrits
   PRIX_NORMAL_CENTIMES: 2995,
   PRIX_ETUDIANT_CENTIMES: 1000,
@@ -92,7 +92,7 @@ function compteur() {
   if (vu) return JSON.parse(vu);
   let vendues = 0;
   try {
-    const r = ls('/discount-redemptions?filter[discount_id]=' + prop('LANCEMENT_ID') + '&page[size]=1');
+    const r = ls('/discount-redemptions?filter[discount_id]=' + idLancement() + '&page[size]=1');
     vendues = (r.meta && r.meta.page && r.meta.page.total) || 0;
   } catch (err) {
     vendues = feuille('Ventes').getRange('H2:H').getValues().filter(v => v[0] === CFG.LANCEMENT_CODE).length;
@@ -100,6 +100,17 @@ function compteur() {
   const res = { vendues: vendues, max: CFG.LANCEMENT_MAX, restant: Math.max(0, CFG.LANCEMENT_MAX - vendues) };
   cache.put('compteur', JSON.stringify(res), 300);
   return res;
+}
+
+// Identifiant de la remise LANCEMENT, retrouvé par son code (survit à une remise recréée).
+function idLancement() {
+  const vu = prop('LANCEMENT_ID');
+  try { if (vu && ls('/discounts/' + vu).data.attributes.code === CFG.LANCEMENT_CODE) return vu; } catch (err) {}
+  const liste = ls('/discounts?filter[store_id]=' + prop('LS_BOUTIQUE') + '&page[size]=100').data || [];
+  const d = liste.find(x => x.attributes.code === CFG.LANCEMENT_CODE);
+  if (!d) throw new Error('Remise ' + CFG.LANCEMENT_CODE + ' introuvable');
+  P.setProperty('LANCEMENT_ID', String(d.id));
+  return String(d.id);
 }
 
 // ---------------------------------------------------------------- ventes
@@ -133,8 +144,8 @@ function recevoirVente(evt) {
     relances.appendRow([quand, a.user_email, a.user_name || '', langue, 'achat' + i, '']);
   });
   CacheService.getScriptCache().remove('compteur');
-  envoyerRelances();
-  verifierStock();
+  try { envoyerRelances(); } catch (err) { noter('Relances', err); }
+  try { verifierStock(); } catch (err) { noter('Stock', err); }
   return { ok: true };
 }
 
@@ -153,8 +164,10 @@ function envoyerRelances() {
     if (envoye || !email || new Date(quand) > maintenant) continue;
     const m = MAILS[langue === 'en' ? 'en' : 'fr'][modele];
     if (!m) continue;
-    envoyer(email, m.sujet, m.texte(prenom(nom)));
-    f.getRange(i + 1, 6).setValue(new Date());
+    try {
+      envoyer(email, m.sujet, m.texte(prenom(nom)));
+      f.getRange(i + 1, 6).setValue(new Date());
+    } catch (err) { noter('Relance ' + modele + ' vers ' + email, err); }
   }
 }
 
@@ -282,6 +295,21 @@ function diffuser(sujet, texte) {
     const l = langue === 'en' ? 'en' : 'fr';
     envoyer(email, sujet(l), texte(l, email));
   }
+}
+
+// Journal des erreurs, dans l'onglet « Journal » du tableur.
+function noter(ou, err) {
+  feuille('Journal').appendRow([new Date(), ou, String(err && err.stack || err)]);
+}
+
+// Adresses « Envoyer en tant que » reconnues par Gmail pour ce compte.
+function listerAlias() { Logger.log('Alias Gmail : ' + JSON.stringify(GmailApp.getAliases())); }
+
+// À lancer depuis l'éditeur : envoie un mail d'essai à l'adresse d'expédition.
+function testerMail() {
+  const de = prop('EXPEDITEUR') || Session.getEffectiveUser().getEmail();
+  envoyer(de, 'Final Touch : mail d’essai', 'Si tu lis ceci, les mails automatiques fonctionnent.');
+  Logger.log('Mail d’essai envoyé à ' + de);
 }
 
 // ---------------------------------------------------------------- mails
@@ -426,6 +454,7 @@ const ENTETES = {
   Relances: ['À envoyer le', 'Email', 'Nom', 'Langue', 'Modèle', 'Envoyé le'],
   Inscrits: ['Date', 'Email', 'Langue', 'État'],
   Etudiants: ['Date', 'Email', 'Statut', 'Code ou carte', 'Langue'],
+  Journal: ['Date', 'Où', 'Erreur'],
 };
 
 function classeur() {
@@ -457,7 +486,7 @@ function installer() {
   if (premiere) classeur().deleteSheet(premiere);
   if (!prop('WEBHOOK_JETON')) P.setProperty('WEBHOOK_JETON', Utilities.getUuid().replace(/-/g, ''));
   if (!prop('LANCEMENT_ID')) {
-    const id = creerRemise('Lancement (100 premières licences)', CFG.LANCEMENT_CODE, CFG.LANCEMENT_REMISE_PCT, 'percent', CFG.LANCEMENT_MAX);
+    const id = creerRemise('Lancement (100 premières licences)', CFG.LANCEMENT_CODE, CFG.LANCEMENT_REMISE_CENTIMES, 'fixed', CFG.LANCEMENT_MAX);
     P.setProperty('LANCEMENT_ID', String(id));
   }
   ScriptApp.getProjectTriggers().forEach(t => ScriptApp.deleteTrigger(t));
