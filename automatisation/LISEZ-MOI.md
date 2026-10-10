@@ -1,5 +1,29 @@
 # Final Touch : mise en place de la vente automatique
 
+## Où on en est (10/10/2026)
+
+Tout fonctionne **en mode test** et a été vérifié par un achat test complet : paiement à 14,95 € avec le code LANCEMENT, vente inscrite dans le tableur, compteur à 1/100, mail de bienvenue reçu depuis `Final Touch <contact@finaltouchsound.fr>`.
+
+- Boutique Lemon Squeezy : « Final Touch » (identifiant 494444), produit 1428311 à 29,95 € TTC, fichiers dmg, exe et PDF joints, adresse de contact `contact@finaltouchsound.fr`.
+- Code LANCEMENT : −15 € fixe (29,95 → 14,95 €), 100 utilisations.
+- Script Google « Final Touch ventes » sur le compte de Théo, déployé en application web ; tableur « Final Touch - ventes » sur son Drive.
+- Webhook Lemon Squeezy `order_created` → script.
+- Mails : redirection OVH `contact@` → Gmail, Gmail « Envoyer en tant que » `contact@finaltouchsound.fr` (via smtp.gmail.com), filtre Gmail « jamais en spam » pour `contact@`.
+- Les secrets (clé API) ne sont que dans les propriétés du script et dans `automatisation/.secrets/` sur le Mac (exclu de Git).
+
+## Passer en réel (quand la boutique est activée)
+
+1. **Théo** : Lemon Squeezy → *Activate your store* (identité, SIREN, RIB) et attendre la validation.
+2. Ensuite (Claude peut le faire) :
+   - copier le produit en mode réel (bouton *Copy to live mode* sur la fiche produit) ;
+   - créer une clé API **réelle** et la mettre dans la propriété `LS_CLE`, mettre le lien de paiement réel dans `LIEN_ACHAT`, effacer `LANCEMENT_ID` puis relancer `installer()` (crée le code LANCEMENT réel) ;
+   - recréer le webhook en mode réel vers la même adresse ;
+   - supprimer les lignes de test du tableur ;
+   - brancher le site : `checkout` et `api` dans `public/js/config.js`, puis publier ;
+   - supprimer la clé API de test dans Lemon Squeezy.
+
+---
+
 À faire une seule fois. Compter une heure. Ensuite, tout tourne sans toi.
 
 ## 1. Le domaine finaltouchsound.fr (OVH, 5 min)
