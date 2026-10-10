@@ -11,7 +11,9 @@
  *   - compteur des licences de lancement pour le site (lu sur Lemon Squeezy).
  *
  * Mise en place : voir LISEZ-MOI.md (fonction installer(), puis déploiement).
- * Aucune adresse n'est écrite ici : les mails partent du compte qui déploie le script.
+ * Aucune adresse perso n'est écrite ici. Les mails partent de l'adresse de la propriété
+ * EXPEDITEUR (ex. contact@finaltouchsound.fr, ajoutée dans Gmail comme « Envoyer en tant que »),
+ * sinon du compte qui déploie le script.
  */
 
 // ---------------------------------------------------------------- réglages
@@ -284,7 +286,9 @@ function diffuser(sujet, texte) {
 
 // ---------------------------------------------------------------- mails
 function envoyer(to, sujet, corps) {
-  MailApp.sendEmail({ to: to, subject: sujet, body: corps, name: CFG.NOM });
+  const de = prop('EXPEDITEUR');
+  if (de) GmailApp.sendEmail(to, sujet, corps, { from: de, name: CFG.NOM, replyTo: de });
+  else MailApp.sendEmail({ to: to, subject: sujet, body: corps, name: CFG.NOM });
 }
 
 const MAILS = {

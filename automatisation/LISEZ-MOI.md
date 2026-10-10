@@ -16,9 +16,18 @@ Dans l'espace client OVH : Noms de domaine → finaltouchsound.fr → Zone DNS. 
 
 La propagation prend de quelques minutes à quelques heures. Le HTTPS s'active ensuite tout seul.
 
-## 2. Une adresse Gmail dédiée (5 min, conseillé)
+## 2. L'adresse contact@finaltouchsound.fr (10 min)
 
-Les mails automatiques partent du compte Google qui installe le script. Pour ne jamais montrer ton adresse perso, crée une adresse rien que pour le plug (par exemple `finaltouchsound@gmail.com`) et fais les étapes 4 et 5 avec ce compte.
+Les acheteurs ne voient jamais ton adresse perso : tous les mails partent de `contact@finaltouchsound.fr`.
+
+1. **Créer la boîte chez OVH** : Web Cloud → E-mails → finaltouchsound.fr → Créer une adresse e-mail → `contact`, avec un mot de passe. (L'offre e-mail fournie avec le domaine suffit.)
+2. **L'ajouter à ton Gmail actuel** : Gmail → Paramètres (roue dentée) → Voir tous les paramètres → Comptes et importation → « Envoyer des e-mails en tant que » → Ajouter une autre adresse.
+   - Nom : `Final Touch` ; adresse : `contact@finaltouchsound.fr` ; décoche « Traiter comme un alias ».
+   - Serveur SMTP : `ssl0.ovh.net`, port `465`, connexion SSL ; identifiant : `contact@finaltouchsound.fr` ; mot de passe : celui de la boîte.
+   - Gmail envoie un code de confirmation dans la boîte OVH (webmail : mail.ovh.net). Recopie-le.
+3. Pour lire les réponses des acheteurs dans Gmail (facultatif) : même page, « Consulter d'autres comptes » → ajouter `contact@finaltouchsound.fr`, serveur POP `pop3.mail.ovh.net`, port 995, SSL.
+
+Le script s'installe ensuite sur ton compte Google habituel.
 
 ## 3. Lemon Squeezy (20 min)
 
@@ -34,13 +43,14 @@ Ne crée pas le code LANCEMENT à la main : le script le crée (−50 %, 100 uti
 
 ## 4. Le script Google (15 min)
 
-1. Sur script.google.com (avec le compte de l'étape 2) : Nouveau projet, nommé « Final Touch ventes ».
+1. Sur script.google.com (ton compte Google habituel) : Nouveau projet, nommé « Final Touch ventes ».
 2. Colle le contenu de `Code.gs` à la place du code existant.
 3. Paramètres du projet : coche « Afficher le fichier manifeste », puis remplace `appsscript.json` par celui de ce dossier.
 4. Paramètres du projet → Propriétés du script, ajoute :
    - `LS_CLE` : la clé API ;
    - `LS_BOUTIQUE` : l'identifiant de la boutique ;
-   - `LIEN_ACHAT` : le lien de paiement.
+   - `LIEN_ACHAT` : le lien de paiement ;
+   - `EXPEDITEUR` : `contact@finaltouchsound.fr`.
 5. Dans l'éditeur, choisis la fonction `installer` et clique sur Exécuter. Accepte les autorisations. Le journal affiche l'adresse du tableur et le jeton du webhook.
 6. Déployer → Nouveau déploiement → Application web. Exécuter en tant que : moi. Accès : tout le monde. Copie l'adresse qui finit par `/exec`.
 
