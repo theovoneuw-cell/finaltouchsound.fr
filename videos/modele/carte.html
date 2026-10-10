@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Carte vidéo</title>
+<style>
+@font-face { font-family: 'Geist'; src: url(assets/Geist-Variable.woff2) format('woff2'); font-weight: 100 900; }
+@font-face { font-family: 'Geist Mono'; src: url(assets/GeistMono-Variable.woff2) format('woff2'); font-weight: 100 900; }
+:root { --paper: #ecebe6; --surface: #f5f4f0; --ink: #141519; --ink-2: #3c3e44; --muted: #6a6d74; --line: #d3d2cb; --accent: #e8501a; }
+* { box-sizing: border-box; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: var(--paper); color: var(--ink); font-family: 'Geist', sans-serif; }
+.c { position: absolute; inset: 0; padding: 96px 80px; display: flex; flex-direction: column; }
+.logo { width: 300px; }
+.lt { color: var(--ink); --lead: 1.25; }
+.lt .lt-box { display: block; }
+.lt-line { display: block; overflow: visible; }
+.titre { --cap: 160px; margin-top: 80px; }
+.titre.apres .lt-ch:last-child path { }
+.sous { margin-top: 26px; font-size: 40px; color: var(--ink-2); letter-spacing: -0.01em; }
+.sous b { color: var(--ink); font-weight: 600; }
+.mesure { margin-top: 40px; display: flex; align-items: flex-end; gap: 18px; }
+.mesure .lt { --cap: 100px; }
+.mesure .u { font: 500 34px 'Geist Mono', monospace; color: var(--muted); padding-bottom: 26px; }
+.plug { margin-top: 40px; width: 860px; border-radius: 22px; box-shadow: 0 30px 60px -30px rgb(60 55 40 / .45); }
+/* Zone de la forme d'onde (posée par ffmpeg entre y=1330 et y=1590) */
+.onde { position: absolute; left: 80px; right: 80px; top: 1330px; height: 260px; border-top: 2px solid var(--line); border-bottom: 2px solid var(--line); }
+.pied { position: absolute; left: 80px; right: 80px; bottom: 96px; display: flex; justify-content: space-between; align-items: flex-end; }
+.pied p { margin: 0; font-size: 34px; color: var(--ink-2); max-width: 600px; line-height: 1.3; }
+.pied .url { font: 600 34px 'Geist Mono', monospace; color: var(--ink); }
+.pastille { display: inline-block; margin-top: 30px; padding: 12px 22px; border-radius: 14px; background: var(--ink); color: var(--paper); font-size: 32px; font-weight: 600; }
+/* Carte d'étape */
+.etape { justify-content: center; align-items: center; text-align: center; }
+.etape .lt { --cap: 150px; }
+.barre { margin-top: 70px; width: 520px; height: 8px; border-radius: 8px; background: var(--line); overflow: hidden; }
+.barre span { display: block; height: 100%; background: var(--accent); }
+/* Carte de fin */
+.fin { justify-content: center; }
+.fin .logo { width: 620px; }
+.fin .lt { --cap: 110px; margin-top: 90px; }
+.fin .prix { margin-top: 40px; font-size: 44px; color: var(--ink-2); }
+.fin .prix s { color: var(--muted); margin-left: 12px; }
+.fin .url { margin-top: 70px; font: 600 56px 'Geist Mono', monospace; }
+</style>
+</head>
+<body>
+<div id="c"></div>
+<script type="module">
+import { loadLettrage, renderAll } from './lettrage.js';
+const q = new URLSearchParams(location.search);
+const type = q.get('type') || 'avant';
+const en = q.get('langue') === 'en';
+const T = en ? {
+  avant: 'Before', apres: 'After', brut: 'Raw bounce', fini: 'With Final Touch', style: 'Style', egal: 'Same loudness, so you hear the processing.',
+  essai: 'Try your own track for free', prix: '€14.95 at launch', barre: '€29.95',
+} : {
+  avant: 'Avant', apres: 'Après', brut: 'Bounce brut', fini: 'Avec Final Touch', style: 'Style', egal: 'Même volume : tu entends le traitement.',
+  essai: 'Teste ton son gratuitement', prix: '14,95 € au lancement', barre: '29,95 €',
+};
+const artiste = q.get('artiste') || '';
+const style = q.get('style') || 'Rap';
+const lufs = q.get('lufs') || '';
+const url = q.get('url') || 'finaltouchsound.fr';
+const plug = q.get('plug') || '';
+const num = v => en ? v : v.replace('.', ',');
+const c = document.getElementById('c');
+
+if (type === 'avant' || type === 'apres') {
+  const apres = type === 'apres';
+  c.className = 'c';
+  c.innerHTML = `
+    <img class="logo" src="assets/final-touch-logotype-encre.svg" alt="">
+    <div class="lt titre" data-lt="${apres ? T.apres : T.avant}"></div>
+    <div class="sous">${artiste ? `<b>${artiste}</b>, ` : ''}${apres ? T.fini : T.brut} · ${T.style} ${style}</div>
+    ${lufs ? `<div class="mesure"><span class="lt" data-lt="${num(lufs)}" data-nowrap></span><span class="u">LUFS</span></div>` : ''}
+    ${apres && plug ? `<img class="plug" src="${plug}" alt="">` : ''}
+    <div class="onde"></div>
+    <div class="pied"><p>${T.egal}</p></div>`;
+} else if (type === 'etape') {
+  c.className = 'c etape';
+  const i = +(q.get('i') || 1), n = +(q.get('n') || 4);
+  c.innerHTML = `<div class="lt" data-lt="${q.get('texte') || ''}"></div><div class="barre"><span style="width:${Math.round(i / n * 100)}%"></span></div>`;
+} else {
+  c.className = 'c fin';
+  c.innerHTML = `
+    <img class="logo" src="assets/final-touch-logotype-encre.svg" alt="">
+    <div class="lt" data-lt="${T.essai}"></div>
+    <div class="prix">${T.prix}<s>${T.barre}</s></div>
+    <div class="url">${url}</div>`;
+}
+await loadLettrage();
+await document.fonts.ready;
+renderAll();
+await Promise.all([...document.images].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
+document.body.dataset.pret = '1';
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>fr.finaltouchsound.videos</string>
+  <key>ProgramArguments</key>
+  <array><string>/bin/bash</string><string>/Users/axel/Sites/final-touch/videos/traiter-dossier.sh</string></array>
+  <key>WatchPaths</key>
+  <array><string>/Users/axel/Final Touch - Vidéos/À traiter</string></array>
+  <key>StandardErrorPath</key><string>/tmp/finaltouch-videos.err</string>
+</dict>
+</plist>

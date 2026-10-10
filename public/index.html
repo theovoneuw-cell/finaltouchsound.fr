@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Final Touch : la mise à plat de fin de session en 20 secondes</title>
+<meta name="description" content="Posé sur le master en fin de session, Final Touch écoute le morceau, le nettoie, le colore et le monte tant qu’il reste propre. Mac et Windows.">
+<meta name="theme-color" content="#ecebe6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121316" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="product">
+<meta property="og:title" content="Final Touch">
+<meta property="og:description" content="La mise à plat de fin de session en vingt secondes. Essaie-le sur ton morceau, directement dans le navigateur.">
+<meta property="og:image" content="https://finaltouchsound.fr/assets/img/og.jpg">
+<meta property="og:url" content="https://finaltouchsound.fr/">
+<link rel="canonical" href="https://finaltouchsound.fr/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/img/final-touch-icone.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Final Touch",
+  "applicationCategory": "MultimediaApplication",
+  "applicationSubCategory": "Audio plug-in (AU, VST3)",
+  "operatingSystem": "macOS, Windows",
+  "url": "https://finaltouchsound.fr/",
+  "description": "Plug-in de prémaster posé sur le master : il écoute le morceau, le nettoie, le colore et le monte tant qu'il reste propre. Styles Rap, Trap, RnB, Afro, Pop.",
+  "offers": [
+    { "@type": "Offer", "name": "Licence (offre de lancement)", "price": "14.95", "priceCurrency": "EUR", "availability": "https://schema.org/InStock" },
+    { "@type": "Offer", "name": "Licence étudiant", "price": "10.00", "priceCurrency": "EUR", "availability": "https://schema.org/InStock" }
+  ]
+}
+</script>
+<style>
+/* Prechargeur : affiche des la premiere image, avant la feuille de style */
+#pl { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: #ecebe6; color: #141519; transition: transform .75s cubic-bezier(0.77, 0, 0.175, 1); }
+#pl.out { transform: translateY(-100%); }
+#pl .pl-in { display: grid; justify-items: center; gap: 26px; }
+#pl svg { width: 92px; height: 92px; overflow: visible; }
+#pl .pl-name { width: 168px; opacity: 0; transform: translateY(6px); transition: opacity .5s ease, transform .6s cubic-bezier(0.23, 1, 0.32, 1); }
+#pl.named .pl-name { opacity: 1; transform: none; }
+#pl .pl-ink { display: block; } #pl .pl-chalk { display: none; }
+@media (prefers-color-scheme: dark) {
+  #pl { background: #121316; color: #ecebe8; }
+  #pl .pl-ink { display: none; } #pl .pl-chalk { display: block; }
+}
+@media (prefers-reduced-motion: reduce) { #pl { display: none; } }
+</style>
+</head>
+<body>
+<div id="pl" aria-hidden="true">
+  <div class="pl-in">
+    <svg viewBox="-4 -4 108 108">
+      <path class="pl-stem" d="M50 100V34" fill="none" stroke="currentColor" stroke-width="15"/>
+      <path class="pl-bar" d="M4 34C22 34 27 34 50 34C73 34 78 34 96 34" fill="none" stroke="currentColor" stroke-width="15"/>
+      <circle class="pl-dot" cx="50" cy="34" r="13" fill="#e8501a" stroke-width="5"/>
+    </svg>
+    <div class="pl-name"><img class="pl-ink" src="assets/img/final-touch-logotype-encre.svg" alt="" width="168" height="36"><img class="pl-chalk" src="assets/img/final-touch-logotype-craie.svg" alt="" width="168" height="36"></div>
+  </div>
+</div>
+<script>
+// La barre du T part a plat, le point l attrape et la monte d un cran : le geste du premaster.
+(function () {
+  var pl = document.getElementById('pl');
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var vu = false; try { vu = sessionStorage.getItem('ft-pl') === '1'; sessionStorage.setItem('ft-pl', '1'); } catch (e) {}
+  var fini, pret = new Promise(function (r) { fini = r; });
+  window.FT_PRELOADER = pret;
+  if (reduce || vu) { pl.remove(); fini(); window.FT_READY = function () {}; return; }
+  var bar = pl.querySelector('.pl-bar'), stem = pl.querySelector('.pl-stem'), dot = pl.querySelector('.pl-dot');
+  dot.setAttribute('stroke', getComputedStyle(pl).backgroundColor);
+  var L = 86; stem.style.strokeDasharray = L; stem.style.strokeDashoffset = L;
+  dot.style.transformOrigin = '50px 34px'; dot.style.transform = 'scale(0)';
+  var t0 = performance.now(), D1 = 420, D2 = 640, debut = 0;
+  var easeOut = function (k) { return 1 - Math.pow(1 - k, 3); };
+  var spring = function (k) { return 1 - Math.exp(-6 * k) * Math.cos(9 * k); };
+  function frame(now) {
+    var t = now - t0;
+    var k1 = Math.min(1, t / D1);
+    stem.style.strokeDashoffset = L * (1 - easeOut(k1));
+    var k2 = Math.max(0, Math.min(1, (t - D1 + 80) / D2));
+    var lift = 20 * spring(k2);                       // la cloche monte de 20 unites
+    var y = 34 - lift;
+    bar.setAttribute('d', 'M4 34C22 34 27 ' + y + ' 50 ' + y + 'C73 ' + y + ' 78 34 96 34');
+    dot.setAttribute('cy', y);
+    stem.setAttribute('d', 'M50 100V' + y);
+    dot.style.transform = 'scale(' + Math.min(1, k2 * 4) + ')';
+    if (k2 > 0.35) pl.classList.add('named');
+    if (k2 < 1) requestAnimationFrame(frame); else debut = performance.now();
+  }
+  requestAnimationFrame(frame);
+  var charge = false, minimum = new Promise(function (r) { setTimeout(r, 1250); });
+  window.FT_READY = function () {
+    if (charge) return; charge = true;
+    minimum.then(function () {
+      pl.classList.add('out');
+      setTimeout(function () { pl.remove(); }, 760);
+      setTimeout(fini, 260);
+    });
+  };
+  // Filet de securite : jamais plus de 4 s d ecran d attente.
+  setTimeout(function () { window.FT_READY(); }, 4000);
+})();
+</script>
+
+<header class="nav" id="haut">
+  <div class="wrap nav-in">
+    <a class="brand" href="#haut" aria-label="Final Touch">
+      <img class="logo logo-ink" src="assets/img/final-touch-logotype-encre.svg" alt="Final Touch" width="150" height="32">
+      <img class="logo logo-chalk" src="assets/img/final-touch-logotype-craie.svg" alt="" width="150" height="32">
+    </a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#essai" data-i18n="nav.try">Essayer</a>
+      <a href="#reglages" data-i18n="nav.controls">Réglages</a>
+      <a href="#prix" data-i18n="nav.price">Prix</a>
+      <a href="#installation" data-i18n="nav.install">Installation</a>
+      <a href="#questions" data-i18n="nav.faq">Questions</a>
+    </nav>
+    <div class="nav-end">
+      <div class="lang" role="group" aria-label="Langue / Language">
+        <button type="button" data-lang="fr" aria-pressed="true">FR</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+      <a class="btn btn-ink btn-sm" href="#prix" data-i18n="nav.buy">Acheter</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- Accroche -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <h1 class="lt lt-xl" data-lt-key="lt.hero"></h1>
+      <p class="hero-sub reveal" data-i18n="hero.sub"></p>
+      <div class="hero-ctas reveal">
+        <a class="btn btn-ink" href="#essai" data-i18n="hero.try">Essayer sur mon son</a>
+        <a class="btn btn-line" href="#prix" data-i18n="hero.buy">Acheter 14,95 €</a>
+      </div>
+    </div>
+    <figure class="hero-shot">
+      <img src="assets/img/plug-rap.png" width="2160" height="1440" alt="L’interface de Final Touch : courbe d’égalisation, mesure de volume et six boutons." fetchpriority="high">
+    </figure>
+  </div>
+</section>
+
+<!-- Le probleme -->
+<section class="pain">
+  <div class="wrap pain-grid">
+    <div class="pain-copy">
+      <p class="pain-lead reveal" data-i18n="pain.lead"></p>
+      <p class="pain-fix reveal" data-i18n="pain.fix"></p>
+    </div>
+    <dl class="pain-who">
+      <div class="reveal"><dt data-i18n="pain.a1t"></dt><dd data-i18n="pain.a1"></dd></div>
+      <div class="reveal"><dt data-i18n="pain.a2t"></dt><dd data-i18n="pain.a2"></dd></div>
+    </dl>
+  </div>
+</section>
+
+<!-- Chiffres -->
+<section class="facts">
+  <div class="wrap facts-grid">
+    <div class="fact reveal"><span class="fact-n" data-lt="5"></span><p data-i18n="facts.styles"></p></div>
+    <div class="fact reveal"><span class="fact-n" data-lt="6"></span><p data-i18n="facts.knobs"></p></div>
+    <div class="fact reveal"><span class="fact-n" data-lt="6 ms" data-nowrap></span><p data-i18n="facts.lat"></p></div>
+    <div class="fact reveal"><span class="fact-n" data-lt="−0,1" data-nowrap></span><p><span class="mono">dBTP</span> <span data-i18n="facts.tp"></span></p></div>
+  </div>
+</section>
+
+<!-- Essai -->
+<section class="try" id="essai">
+  <div class="wrap">
+    <h2 class="lt lt-l" data-lt-key="lt.try"></h2>
+    <p class="lead reveal" data-i18n="try.sub"></p>
+
+    <div class="demo" data-state="empty">
+      <div class="demo-side">
+        <label class="drop" for="file">
+          <input id="file" type="file" accept="audio/*,.wav,.aif,.aiff,.mp3,.m4a,.flac,.ogg">
+          <span class="drop-t" data-i18n="try.drop"></span>
+          <span class="drop-s" data-i18n="try.drop2"></span>
+          <span class="drop-name mono" hidden></span>
+        </label>
+        <div class="field">
+          <span class="field-l" data-i18n="try.style">Style</span>
+          <div class="seg" role="radiogroup" aria-label="Style" id="styles">
+            <button type="button" role="radio" aria-checked="true" data-style="0">Rap</button>
+            <button type="button" role="radio" aria-checked="false" data-style="1">Trap</button>
+            <button type="button" role="radio" aria-checked="false" data-style="2">RnB</button>
+            <button type="button" role="radio" aria-checked="false" data-style="3">Afro</button>
+            <button type="button" role="radio" aria-checked="false" data-style="4">Pop</button>
+          </div>
+        </div>
+        <p class="privacy" data-i18n="try.equal"></p>
+        <form class="previens" hidden novalidate>
+          <p class="previens-t" data-i18n="notify.t"></p>
+          <div class="previens-row">
+            <label class="sr-only" for="previens-email" data-i18n="notify.label"></label>
+            <input id="previens-email" type="email" required autocomplete="email" placeholder="nom@exemple.fr">
+            <button type="submit" class="btn btn-line btn-sm" data-i18n="notify.btn">Me prévenir</button>
+          </div>
+          <p class="previens-msg" role="status"></p>
+        </form>
+      </div>
+
+      <div class="demo-main">
+        <div class="wave-box">
+          <canvas class="wave" aria-hidden="true"></canvas>
+          <div class="win" hidden><span class="win-play"></span></div>
+        </div>
+        <p class="wave-hint" data-i18n="try.excerpt" hidden></p>
+
+        <div class="demo-empty"><p data-i18n="try.empty"></p></div>
+
+        <div class="demo-busy" aria-live="polite">
+          <div class="step-title lt lt-m"></div>
+          <div class="busy-bar"><span></span></div>
+        </div>
+
+        <div class="demo-result">
+          <div class="transport">
+            <button type="button" class="btn btn-ink btn-play" aria-label="Lecture">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path class="i-play" d="M7 4.5v15l12-7.5z" fill="currentColor"/><path class="i-pause" d="M6.5 4.5h4v15h-4zM13.5 4.5h4v15h-4z" fill="currentColor"/></svg>
+            </button>
+            <div class="seg seg-ab" role="radiogroup" aria-label="Avant / Après">
+              <button type="button" role="radio" aria-checked="false" data-ab="before" data-i18n="try.before">Avant</button>
+              <button type="button" role="radio" aria-checked="true" data-ab="after" data-i18n="try.after">Après</button>
+            </div>
+            <button type="button" class="btn btn-line btn-sm btn-rerun" data-i18n="try.again" hidden>Retraiter</button>
+          </div>
+          <div class="readouts">
+            <div class="ro-main">
+              <div class="ro-head"><span class="ro-l" data-i18n="try.integrated"></span><span class="ro-ceil mono"><span data-i18n="try.ceiling"></span> <span id="ceil"></span></span></div>
+              <div class="ro-big"><span class="lt lt-num" id="out-lufs" data-nowrap></span><span class="unit mono">LUFS</span></div>
+            </div>
+            <div class="ro-row">
+              <div><span class="ro-l" data-i18n="try.input"></span><span class="mono ro-v" id="in-lufs"></span><span class="unit mono">LUFS</span></div>
+              <div><span class="ro-l" data-i18n="try.tp"></span><span class="mono ro-v" id="tp"></span><span class="unit mono">dBTP</span></div>
+            </div>
+          </div>
+          <div class="eq-box">
+            <span class="ro-l" data-i18n="try.eq"></span>
+            <canvas class="eq" aria-hidden="true"></canvas>
+          </div>
+          <div class="diag">
+            <span class="ro-l" data-i18n="try.diag"></span>
+            <ul id="diag-list"></ul>
+          </div>
+          <div class="try-cta">
+            <p data-i18n="try.cta"></p>
+            <a class="btn btn-ink" href="#prix" data-buy-scroll data-i18n="try.ctab">Acheter 14,95 €</a>
+          </div>
+        </div>
+
+        <p class="demo-err" role="alert" hidden></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Reglages -->
+<section class="controls" id="reglages">
+  <div class="wrap">
+    <h2 class="lt lt-l" data-lt-key="lt.controls"></h2>
+    <p class="lead reveal" data-i18n="controls.sub"></p>
+    <div class="knobs" role="tablist" aria-label="Réglages">
+      <button class="knob-b" role="tab" aria-selected="true" data-k="clean" style="--c:var(--k-clean);--v:.62"><span class="knob"><span class="knob-cap"></span></span><span class="knob-n" data-i18n="k.clean"></span></button>
+      <button class="knob-b" role="tab" aria-selected="false" data-k="color" style="--c:var(--k-color);--v:.55"><span class="knob"><span class="knob-cap"></span></span><span class="knob-n" data-i18n="k.color"></span></button>
+      <button class="knob-b" role="tab" aria-selected="false" data-k="punch" style="--c:var(--k-punch);--v:.70"><span class="knob"><span class="knob-cap"></span></span><span class="knob-n" data-i18n="k.punch"></span></button>
+      <button class="knob-b" role="tab" aria-selected="false" data-k="vocal" style="--c:var(--k-vocal);--v:.50"><span class="knob"><span class="knob-cap"></span></span><span class="knob-n" data-i18n="k.vocal"></span></button>
+      <button class="knob-b" role="tab" aria-selected="false" data-k="air" style="--c:var(--k-air);--v:.52"><span class="knob"><span class="knob-cap"></span></span><span class="knob-n" data-i18n="k.air"></span></button>
+      <button class="knob-b" role="tab" aria-selected="false" data-k="loud" style="--c:var(--accent);--v:.66"><span class="knob"><span class="knob-cap"></span></span><span class="knob-n" data-i18n="k.loud"></span></button>
+    </div>
+    <div class="knob-detail" role="tabpanel">
+      <h3 class="kd-name lt lt-m"></h3>
+      <p class="kd-desc"></p>
+      <p class="kd-ref mono"></p>
+    </div>
+  </div>
+</section>
+
+<!-- Qualite d'abord -->
+<section class="quality">
+  <div class="wrap">
+    <h2 class="lt lt-l" data-lt-key="lt.quality"></h2>
+    <div class="quality-grid">
+      <p class="lead reveal" data-i18n="quality.p"></p>
+      <ol class="ceilings">
+        <li class="reveal"><span class="c-style">Rap</span><span class="c-n" data-lt="−11" data-nowrap></span><span class="c-unit mono">LUFS</span></li>
+        <li class="reveal"><span class="c-style">Trap</span><span class="c-n" data-lt="−10,5" data-nowrap></span><span class="c-unit mono">LUFS</span></li>
+        <li class="reveal"><span class="c-style">RnB</span><span class="c-n" data-lt="−12" data-nowrap></span><span class="c-unit mono">LUFS</span></li>
+        <li class="reveal"><span class="c-style">Afro</span><span class="c-n" data-lt="−11" data-nowrap></span><span class="c-unit mono">LUFS</span></li>
+        <li class="reveal"><span class="c-style">Pop</span><span class="c-n" data-lt="−11,5" data-nowrap></span><span class="c-unit mono">LUFS</span></li>
+      </ol>
+    </div>
+    <p class="tp-note reveal" data-i18n="quality.tp"></p>
+  </div>
+</section>
+
+<!-- Comment -->
+<section class="how">
+  <div class="wrap">
+    <h2 class="lt lt-l" data-lt-key="lt.how"></h2>
+    <ol class="how-row">
+      <li class="reveal"><h3 data-i18n="how.1t"></h3><p data-i18n="how.1d"></p></li>
+      <li class="reveal how-mid"><h3 data-i18n="how.2t"></h3><p data-i18n="how.2d"></p><span class="fake-listen" aria-hidden="true" data-i18n="how.listen"></span></li>
+      <li class="reveal"><h3 data-i18n="how.3t"></h3><p data-i18n="how.3d"></p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- Autour -->
+<section class="tools">
+  <div class="wrap">
+    <h2 class="lt lt-l" data-lt-key="lt.tools"></h2>
+    <div class="bento">
+      <article class="cell cell-ab reveal">
+        <div class="ab-demo" aria-hidden="true"><span data-i18n="try.before"></span><span class="on" data-i18n="try.after"></span></div>
+        <h3 data-i18n="tools.ab.t"></h3><p data-i18n="tools.ab.d"></p>
+      </article>
+      <article class="cell cell-mon reveal">
+        <h3 data-i18n="tools.mon.t"></h3><p data-i18n="tools.mon.d"></p>
+        <ul class="mon-list" aria-hidden="true"></ul>
+      </article>
+      <article class="cell cell-diag reveal">
+        <div class="crop"><img src="assets/img/crop-diag.png" width="792" height="283" alt=""></div>
+        <h3 data-i18n="tools.diag.t"></h3><p data-i18n="tools.diag.d"></p>
+      </article>
+      <article class="cell cell-rem reveal">
+        <h3 data-i18n="tools.rem.t"></h3><p data-i18n="tools.rem.d"></p>
+        <canvas class="rem-wave" aria-hidden="true"></canvas>
+      </article>
+      <article class="cell cell-plat reveal">
+        <h3 data-i18n="tools.plat.t"></h3><p data-i18n="tools.plat.d"></p>
+        <dl class="plat">
+          <div><dt>Spotify</dt><dd class="mono">−1,9 dB</dd></div>
+          <div><dt>Apple Music</dt><dd class="mono">−3,9 dB</dd></div>
+          <div><dt>YouTube</dt><dd class="mono">−1,9 dB</dd></div>
+        </dl>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- Prix -->
+<section class="price" id="prix">
+  <div class="wrap">
+    <h2 class="lt lt-l" data-lt-key="lt.price"></h2>
+    <div class="price-grid">
+      <article class="offer offer-main reveal">
+        <div class="offer-top">
+          <h3 data-i18n="price.std"></h3>
+          <span class="offer-note" data-i18n="price.std.note"></span>
+        </div>
+        <div class="offer-price"><span class="lt lt-price" data-lt="14,95" data-nowrap></span><span class="cur">€</span><s data-price-old>29,95 €</s><span class="off mono" data-i18n="price.off"></span></div>
+        <p class="offer-frame" data-i18n="price.frame"></p>
+        <ul class="offer-inc">
+          <li data-i18n="price.inc0"></li>
+          <li data-i18n="price.inc1"></li>
+          <li data-i18n="price.incAll"></li>
+          <li data-i18n="price.inc2"></li>
+          <li data-i18n="price.inc3"></li>
+        </ul>
+        <div class="offer-act">
+          <a class="btn btn-ink btn-wide" data-buy="standard" href="#" data-i18n="price.buy">Acheter 14,95 €</a>
+          <p class="offer-after" data-after></p>
+          <p class="offer-warn"><span data-i18n="price.warn"></span> <a href="#installation" data-i18n="price.warnLink"></a></p>
+        </div>
+      </article>
+      <article class="offer offer-stu reveal">
+        <div class="offer-top">
+          <h3 data-i18n="price.stu"></h3>
+        </div>
+        <div class="offer-price"><span class="lt lt-price" data-lt="10" data-nowrap></span><span class="cur">€</span></div>
+        <p class="offer-stu-note" data-i18n="price.stu.note"></p>
+        <a class="btn btn-line btn-wide" data-buy="student" href="#" data-i18n="price.buystu">Tarif étudiant</a>
+      </article>
+    </div>
+    <p class="unsure reveal"><a href="#essai" data-i18n="price.unsure"></a></p>
+  </div>
+</section>
+
+<!-- Installation -->
+<section class="install" id="installation">
+  <div class="wrap">
+    <h2 class="lt lt-l" data-lt-key="lt.install"></h2>
+    <p class="lead reveal" data-i18n="install.why"></p>
+    <div class="install-grid">
+      <div class="os reveal">
+        <h3 data-i18n="install.mac"></h3>
+        <ol>
+          <li data-i18n="install.mac1"></li>
+          <li data-i18n="install.mac2"></li>
+          <li data-i18n="install.mac3"></li>
+          <li data-i18n="install.mac4"></li>
+        </ol>
+      </div>
+      <div class="os reveal">
+        <h3 data-i18n="install.win"></h3>
+        <ol>
+          <li data-i18n="install.win1"></li>
+          <li data-i18n="install.win2"></li>
+          <li data-i18n="install.win3"></li>
+          <li data-i18n="install.win4"></li>
+        </ol>
+      </div>
+    </div>
+    <p class="install-note reveal" data-i18n="install.note"></p>
+  </div>
+</section>
+
+<!-- Questions -->
+<section class="faq" id="questions">
+  <div class="wrap faq-grid">
+    <h2 class="lt lt-l" data-lt-key="lt.faq"></h2>
+    <div class="faq-list">
+      <details class="reveal"><summary data-i18n="faq.q1"></summary><p data-i18n="faq.a1"></p></details>
+      <details class="reveal"><summary data-i18n="faq.q7"></summary><p data-i18n="faq.a7"></p></details>
+      <details class="reveal"><summary data-i18n="faq.q2"></summary><p data-i18n="faq.a2"></p></details>
+      <details class="reveal"><summary data-i18n="faq.q3"></summary><p data-i18n="faq.a3"></p></details>
+      <details class="reveal"><summary data-i18n="faq.q9"></summary><p data-i18n="faq.a9"></p></details>
+      <details class="reveal"><summary data-i18n="faq.q8"></summary><p data-i18n="faq.a8"></p></details>
+      <details class="reveal"><summary data-i18n="faq.q4"></summary><p data-i18n="faq.a4"></p></details>
+      <details class="reveal"><summary data-i18n="faq.q5"></summary><p data-i18n="faq.a5"></p></details>
+      <details class="reveal"><summary data-i18n="faq.q11"></summary><p data-i18n="faq.a11"></p></details>
+      <details class="reveal"><summary data-i18n="faq.q12"></summary><p data-i18n="faq.a12"></p></details>
+      <details class="reveal"><summary data-i18n="faq.q10"></summary><p data-i18n="faq.a10"></p></details>
+      <details class="reveal"><summary data-i18n="faq.q6"></summary><p data-i18n="faq.a6"></p></details>
+    </div>
+  </div>
+</section>
+
+<!-- Appel final -->
+<section class="final">
+  <div class="wrap final-in">
+    <h2 class="lt lt-l" data-lt-key="lt.final"></h2>
+    <p class="lead reveal" data-i18n="final.p"></p>
+    <div class="hero-ctas reveal">
+      <a class="btn btn-ink" href="#essai" data-i18n="hero.try">Essayer sur mon son</a>
+      <a class="btn btn-line" href="#prix" data-i18n="hero.buy">Acheter 14,95 €</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<dialog id="etudiant" class="etu" aria-labelledby="etu-t">
+  <form method="dialog" novalidate>
+    <h2 id="etu-t" data-i18n="stu.t"></h2>
+    <p data-i18n="stu.p"></p>
+    <label class="etu-l"><span data-i18n="stu.email"></span><input type="email" required autocomplete="email"></label>
+    <label class="etu-l"><span data-i18n="stu.card"></span><input type="file" accept="image/*,.pdf"></label>
+    <p class="etu-msg" role="status"></p>
+    <div class="etu-act">
+      <button type="button" class="btn btn-line etu-fermer" data-i18n="stu.close">Fermer</button>
+      <button type="submit" class="btn btn-ink" data-i18n="stu.send">Recevoir mon code</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="sticky-buy" aria-hidden="true">
+  <svg width="26" height="26" viewBox="-4 -4 108 108" aria-hidden="true"><path d="M4 34C22 34 27 14 50 14C73 14 78 34 96 34M50 14V100" fill="none" stroke="currentColor" stroke-width="15"/><circle cx="50" cy="14" r="13" fill="var(--accent)" stroke="var(--paper)" stroke-width="5"/></svg>
+  <span class="sb-name">Final Touch</span>
+  <span class="sb-price"><s data-price-old>29,95 €</s> <b data-price-now>14,95 €</b></span>
+  <a class="btn btn-ink btn-sm" href="#prix" tabindex="-1" data-i18n="sticky.buy">Acheter</a>
+</div>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <svg class="foot-sign" viewBox="-4 -4 108 108" aria-hidden="true"><path d="M4 34C22 34 27 14 50 14C73 14 78 34 96 34M50 14V100" fill="none" stroke="currentColor" stroke-width="15"/><circle cx="50" cy="14" r="13" fill="var(--accent)" stroke="var(--paper)" stroke-width="5"/></svg>
+    <p>© 2026 Final Touch</p>
+    <nav class="foot-links">
+      <a href="#" data-manual hidden data-i18n="foot.manual"></a>
+    </nav>
+  </div>
+</footer>
+
+<script src="js/config.js"></script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
