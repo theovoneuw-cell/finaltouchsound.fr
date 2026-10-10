@@ -482,6 +482,18 @@
   </div>
 </footer>
 
+<script>
+  // Affiliation Lemon Squeezy : le script ne se charge que pour un visiteur venu par le lien d'un affilié.
+  if (/[?&]aff=/.test(location.search) || document.cookie.indexOf('ls_aff_ref=') !== -1) {
+    window.lemonSqueezyAffiliateConfig = { store: 'finaltouch' };
+    var aff = document.createElement('script');
+    aff.src = 'https://lmsqueezy.com/affiliate.js';
+    aff.onload = function () {
+      if (document.readyState === 'complete' && !window.LemonSqueezyAffiliate && window.createLemonSqueezyAffiliate) window.createLemonSqueezyAffiliate();
+    };
+    document.head.appendChild(aff);
+  }
+</script>
 <script src="js/config.js"></script>
 <script type="module" src="js/main.js"></script>
 </body>
