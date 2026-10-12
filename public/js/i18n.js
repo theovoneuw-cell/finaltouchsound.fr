@@ -49,7 +49,7 @@ export const T = {
     'meta.title2': "Final Touch : la mise à plat de fin de session en 20 secondes (plug-in Mac, Windows)",
     'pain.lead': "Fin de session. L’artiste attend son son, et tu n’as pas le temps de faire un prémaster.",
     'pain.fix': "Final Touch le fait sur le master en une vingtaine de secondes : un son propre, équilibré, au bon volume. L’artiste repart avec une mise à plat qu’il peut faire écouter.",
-    'pain.a1t': "Ingés son", 'pain.a1': "Une mise à plat présentable à la fin de chaque session, sans y passer une heure. Tu la règles à l’oreille si besoin, et tu enchaînes.",
+    'pain.a1t': "Ingénieurs du son / mixeurs", 'pain.a1': "Une mise à plat présentable à la fin de chaque session, sans y passer une heure. Tu la règles à l’oreille si besoin, et tu enchaînes.",
     'pain.a2t': "Artistes", 'pain.a2': "Une base équilibrée pour faire écouter ton son ou l’envoyer, à un label, un beatmaker ou tes proches, en attendant le mix final.",
     'pain.a3t': 'En cours', 'pain.a3': 'Chaque étape du prémaster s’affiche à l’écran : tu vois ce qui change et pourquoi.',
     'try.cta': 'Ce rendu sur tous tes morceaux, directement dans ton logiciel.',
@@ -80,7 +80,7 @@ export const T = {
     'faq.a11': 'Par mail, après la commande : le lien vers l’installeur Mac, l’installeur Windows et le mode d’emploi.',
 
     'meta.title': 'Final Touch : le plug-in de mise à plat',
-    'meta.desc': "Plug-in de mise à plat pour les ingés son et les artistes : posé sur le master, il sort en vingt secondes un son propre, équilibré et au bon volume. Mac et Windows.",
+    'meta.desc': "Plug-in de mise à plat pour les ingénieurs du son, les mixeurs et les artistes : posé sur le master, il sort en vingt secondes un son propre, équilibré et au bon volume. Mac et Windows.",
     'nav.try': 'Essayer',
     'nav.controls': 'Réglages',
     'nav.price': 'Prix',
@@ -88,7 +88,7 @@ export const T = {
     'nav.buy': 'Acheter',
 
     'lt.hero': "La mise à plat de fin de session,|prête en vingt secondes.",
-    'hero.sub': "Pour l’ingé qui doit sortir un son propre avant que l’artiste parte, et pour l’artiste qui veut une base équilibrée à envoyer.",
+    'hero.sub': "Pour l’ingénieur du son ou le mixeur qui doit sortir un son propre avant que l’artiste parte, et pour l’artiste qui veut une base équilibrée à envoyer.",
     'hero.try': 'Essayer sur mon son',
     'hero.buy': 'Acheter 14,95 €',
 

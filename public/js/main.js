@@ -43,6 +43,7 @@ function applyLang() {
   wireManual();
   appliquerVente(t, getLang);
   renderAll();
+  if (window.FT_THEME) window.FT_THEME.sync();
   document.dispatchEvent(new CustomEvent('ft-lang', { detail: lang }));
 }
 
@@ -72,7 +73,23 @@ function arm() {
   $$('.lt[data-lt-key]').forEach(el => { el.classList.add('is-armed'); io.observe(el); });
   $$('.reveal').forEach(el => io.observe(el));
   io.observe($('.knobs'));
+  // Esquisse de la demo vide : dessinee une fois, sa respiration s arrete hors de l ecran
+  const ghost = $('.ghost');
+  new IntersectionObserver(([e]) => {
+    if (e.isIntersecting) ghost.classList.add('is-in');
+    ghost.classList.toggle('is-paused', !e.isIntersecting);
+  }, { threshold: 0.3 }).observe(ghost);
 }
+
+// Navigation : la section en cours est soulignee
+const navLinks = $$('.nav-links a');
+const current = new Map();
+const navIo = new IntersectionObserver(entries => {
+  entries.forEach(e => current.set(e.target.id, e.isIntersecting));
+  const on = navLinks.find(a => current.get(a.hash.slice(1)));
+  navLinks.forEach(a => a.classList.toggle('is-current', a === on));
+}, { rootMargin: '-45% 0px -50% 0px' });
+navLinks.forEach(a => { const sec = $(a.hash); if (sec) navIo.observe(sec); });
 
 // Barre d achat sur mobile : visible une fois l accroche passee, cachee sur la section prix
 const sticky = $('.sticky-buy');

@@ -107,6 +107,11 @@ export function initDemo({ t, getLang }) {
   document.addEventListener('ft-lang', () => {
     if (demo.dataset.state === 'done' && result) showResult(result, false);
   });
+  // Changement de theme : les canevas reprennent les nouvelles couleurs
+  document.addEventListener('ft-theme', () => {
+    if (buffer) drawWave();
+    if (demo.dataset.state === 'done' && result) showResult(result, false);
+  });
 
   // Glisser le cadre
   let drag = null;

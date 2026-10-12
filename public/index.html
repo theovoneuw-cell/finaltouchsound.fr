@@ -16,7 +16,14 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="assets/img/final-touch-icone.svg" type="image/svg+xml">
 <link rel="preload" href="assets/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="css/style.css">
+<script src="js/theme.js?v=20261012"></script>
+<script>
+// Chaque arrivee ou rechargement commence en haut de la page : pas de position restauree ni d ancre gardee.
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+addEventListener('pageshow', function () { scrollTo({ top: 0, behavior: 'instant' }); });
+</script>
+<link rel="stylesheet" href="css/style.css?v=20261012">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -43,9 +50,11 @@
 #pl.named .pl-name { opacity: 1; transform: none; }
 #pl .pl-ink { display: block; } #pl .pl-chalk { display: none; }
 @media (prefers-color-scheme: dark) {
-  #pl { background: #121316; color: #ecebe8; }
-  #pl .pl-ink { display: none; } #pl .pl-chalk { display: block; }
+  :root:not([data-theme="light"]) #pl { background: #121316; color: #ecebe8; }
+  :root:not([data-theme="light"]) #pl .pl-ink { display: none; } :root:not([data-theme="light"]) #pl .pl-chalk { display: block; }
 }
+:root[data-theme="dark"] #pl { background: #121316; color: #ecebe8; }
+:root[data-theme="dark"] #pl .pl-ink { display: none; } :root[data-theme="dark"] #pl .pl-chalk { display: block; }
 @media (prefers-reduced-motion: reduce) { #pl { display: none; } }
 </style>
 </head>
@@ -119,6 +128,9 @@
       <a href="#questions" data-i18n="nav.faq">Questions</a>
     </nav>
     <div class="nav-end">
+      <button type="button" class="theme-btn" data-theme-toggle aria-pressed="false" aria-label="Passer en thème sombre">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 3.75a8.25 8.25 0 0 1 0 16.5z" fill="currentColor"/></svg>
+      </button>
       <div class="lang" role="group" aria-label="Langue / Language">
         <button type="button" data-lang="fr" aria-pressed="true">FR</button>
         <button type="button" data-lang="en" aria-pressed="false">EN</button>
@@ -214,7 +226,27 @@
         </div>
         <p class="wave-hint" data-i18n="try.excerpt" hidden></p>
 
-        <div class="demo-empty"><p data-i18n="try.empty"></p></div>
+        <div class="demo-empty">
+          <svg class="ghost" viewBox="0 0 560 300" aria-hidden="true">
+            <g class="g-grid"><path d="M20 30V270M114 30V270M224 30V270M397 30V270M540 30V270"/></g>
+            <path class="g-zero" d="M20 150H540"/>
+            <g class="g-curves">
+            <path class="g-k" pathLength="1" style="stroke:var(--k-color)" d="M20 150C70 150 84 122 114 122S158 150 206 150"/>
+            <path class="g-k" pathLength="1" style="stroke:var(--k-clean)" d="M170 150C200 150 208 172 224 172S248 150 278 150"/>
+            <path class="g-k" pathLength="1" style="stroke:var(--k-vocal)" d="M320 150C360 150 372 130 397 130S432 150 466 150"/>
+            <path class="g-k" pathLength="1" style="stroke:var(--k-air)" d="M430 150C470 150 482 114 501 114S530 116 540 116"/>
+            <path class="g-main" pathLength="1" d="M20 147C60 142 84 121 114 121S166 150 186 151S208 170 224 170S268 152 300 150S364 131 397 131S468 115 501 115S530 117 540 118"/>
+            </g>
+            <g class="g-dots">
+              <g class="g-ride" style="--dy:8.1px"><circle class="g-dot" cx="114" cy="121" r="5" style="stroke:var(--k-color)"/></g>
+              <g class="g-ride" style="--dy:-5.6px"><circle class="g-dot" cx="224" cy="170" r="5" style="stroke:var(--k-clean)"/></g>
+              <g class="g-ride" style="--dy:5.3px"><circle class="g-dot" cx="397" cy="131" r="5" style="stroke:var(--k-vocal)"/></g>
+              <g class="g-ride" style="--dy:9.8px"><circle class="g-dot" cx="501" cy="115" r="5" style="stroke:var(--k-air)"/></g>
+            </g>
+            <text x="20" y="292">20</text><text x="114" y="292" text-anchor="middle">70</text><text x="224" y="292" text-anchor="middle">300</text><text x="397" y="292" text-anchor="middle">3k</text><text x="540" y="292" text-anchor="end">20k</text>
+          </svg>
+          <p data-i18n="try.empty"></p>
+        </div>
 
         <div class="demo-busy" aria-live="polite">
           <div class="step-title lt lt-m"></div>
@@ -290,11 +322,11 @@
     <div class="quality-grid">
       <p class="lead reveal" data-i18n="quality.p"></p>
       <ol class="ceilings">
-        <li class="reveal"><span class="c-style">Rap</span><span class="c-n" data-lt="−11" data-nowrap></span><span class="c-unit mono">LUFS</span></li>
-        <li class="reveal"><span class="c-style">Trap</span><span class="c-n" data-lt="−10,5" data-nowrap></span><span class="c-unit mono">LUFS</span></li>
-        <li class="reveal"><span class="c-style">RnB</span><span class="c-n" data-lt="−12" data-nowrap></span><span class="c-unit mono">LUFS</span></li>
-        <li class="reveal"><span class="c-style">Afro</span><span class="c-n" data-lt="−11" data-nowrap></span><span class="c-unit mono">LUFS</span></li>
-        <li class="reveal"><span class="c-style">Pop</span><span class="c-n" data-lt="−11,5" data-nowrap></span><span class="c-unit mono">LUFS</span></li>
+        <li class="reveal"><span class="c-style">Rap</span><span class="c-n" data-lt="−11" data-nowrap></span><span class="c-unit mono">LUFS</span><span class="c-bar" style="--l:0.6" aria-hidden="true"></span></li>
+        <li class="reveal"><span class="c-style">Trap</span><span class="c-n" data-lt="−10,5" data-nowrap></span><span class="c-unit mono">LUFS</span><span class="c-bar" style="--l:0.7" aria-hidden="true"></span></li>
+        <li class="reveal"><span class="c-style">RnB</span><span class="c-n" data-lt="−12" data-nowrap></span><span class="c-unit mono">LUFS</span><span class="c-bar" style="--l:0.4" aria-hidden="true"></span></li>
+        <li class="reveal"><span class="c-style">Afro</span><span class="c-n" data-lt="−11" data-nowrap></span><span class="c-unit mono">LUFS</span><span class="c-bar" style="--l:0.6" aria-hidden="true"></span></li>
+        <li class="reveal"><span class="c-style">Pop</span><span class="c-n" data-lt="−11,5" data-nowrap></span><span class="c-unit mono">LUFS</span><span class="c-bar" style="--l:0.5" aria-hidden="true"></span></li>
       </ol>
     </div>
     <p class="tp-note reveal" data-i18n="quality.tp"></p>
@@ -495,6 +527,6 @@
   }
 </script>
 <script src="js/config.js"></script>
-<script type="module" src="js/main.js"></script>
+<script type="module" src="js/main.js?v=20261012"></script>
 </body>
 </html>
